@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第一學段「旗」藝超群大比拼 - 數據競賽簡報</title>
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.4);
+      --cyan: #06b6d4;
+      --purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang HK", "Microsoft JhengHei", sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.5rem 3rem;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient Glow Background Effects */
+    .ambient-light {
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60vw;
+      height: 40vh;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1.2rem;
+    }
+
+    .title-area h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .title-badge {
+      font-size: 0.85rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      -webkit-text-fill-color: var(--gold);
+      font-weight: 600;
+    }
+
+    .title-area p {
+      color: var(--text-sub);
+      font-size: 1.05rem;
+      margin-top: 0.4rem;
+    }
+
+    .time-display {
+      text-align: right;
+    }
+
+    .time-label {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .time-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Control Bar */
+    .controls-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin: 1.2rem 0;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      border-color: #818cf8;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #4338ca, #4f46e5);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .filter-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-left: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Main Chart Area */
+    main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      margin: 0.5rem 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+
+    .bar-row {
+      position: absolute;
+      left: 2rem;
+      right: 2rem;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+    }
+
+    .class-label {
+      width: 70px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .rank-num {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      width: 20px;
+      text-align: right;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      margin-left: 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .bar-fill {
+      height: 26px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1), background 0.5s ease;
+      position: relative;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .bar-fill.rank-1 {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      box-shadow: 0 0 18px var(--gold-glow);
+    }
+
+    .bar-fill.rank-2 {
+      background: linear-gradient(90deg, #94a3b8, #cbd5e1);
+    }
+
+    .bar-fill.rank-3 {
+      background: linear-gradient(90deg, #b45309, #d97706);
+    }
+
+    .score-value {
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    /* Champion Overlay Reveal */
+    .champions-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+
+    .champions-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      animation: fadeInDown 0.8s ease forwards;
+    }
+
+    .overlay-header h2 {
+      font-size: 2.6rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #fef08a, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
+    }
+
+    .overlay-header p {
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
+    .champions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .champ-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .champions-overlay.show .champ-card {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .champ-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), #fbbf24);
+    }
+
+    .champ-grade {
+      font-size: 1rem;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .champ-class {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0.2rem 0;
+      letter-spacing: -0.02em;
+    }
+
+    .champ-score-box {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.3rem;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 0.3rem 1rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .champ-score-num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .champ-score-unit {
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-light"></div>
+
+  <header>
+    <div class="title-area">
+      <h1>
+        「旗」藝超群大比拼
+        <span class="title-badge">第一學段</span>
+      </h1>
+      <p>各班「團結認真」旗幟累計獲獎實時動態競賽</p>
+    </div>
+    <div class="time-display">
+      <div class="time-label">當前評比日期</div>
+      <div class="time-value" id="currentDateDisplay">9月9日</div>
+    </div>
+  </header>
+
+  <div class="controls-bar">
+    <button class="btn btn-primary" id="playBtn">
+      <span id="playIcon">▶</span> <span id="playText">開始播放</span>
+    </button>
+    <button class="btn" id="replayBtn">↺ 重設播放</button>
+
+    <div class="filter-tabs">
+      <button class="tab-btn active" data-grade="ALL">全校總攬</button>
+      <button class="tab-btn" data-grade="1">一年級</button>
+      <button class="tab-btn" data-grade="2">二年級</button>
+      <button class="tab-btn" data-grade="3">三年級</button>
+      <button class="tab-btn" data-grade="4">四年級</button>
+      <button class="tab-btn" data-grade="5">五年級</button>
+      <button class="tab-btn" data-grade="6">六年級</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="chart-container" id="chartContainer">
+      <!-- Dynamic Bars Inserted via JS -->
+
+      <!-- Champion Overlay -->
+      <div class="champions-overlay" id="championsOverlay">
+        <div class="overlay-header">
+          <h2>🏆 各年級總冠軍榮譽榜</h2>
+          <p>第一學段累計獲獎次數最高之優勝班別</p>
+        </div>
+        <div class="champions-grid" id="championsGrid">
+          <!-- Champion cards dynamically rendered -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div>數據來源：結果.xlsx 官方統計表</div>
+    <div>Premium Data Storytelling Keynote Style Presentation</div>
+  </footer>
+
+  <script>
+    // Exact Dataset extracted and verified from Result.xlsx
+    const dates = [
+      '9月9日', '9月16日', '9月23日', '9月30日', '10月7日', 
+      '10月14日', '10月21日', '10月28日', '11月4日', '11月11日'
+    ];
+
+    const rawData = [
+      { class: '1A', grade: '1', timeline: [1, 1, 1, 1, 1, 2, 3, 4, 4, 4] },
+      { class: '1B', grade: '1', timeline: [0, 1, 1, 1, 1, 2, 3, 3, 3, 3] },
+      { class: '1C', grade: '1', timeline: [0, 0, 0, 1, 1, 2, 2, 2, 2, 3] },
+      { class: '1D', grade: '1', timeline: [0, 0, 1, 1, 1, 2, 3, 3, 3, 3] },
+
+      { class: '2A', grade: '2', timeline: [0, 0, 0, 0, 0, 1, 2, 2, 3, 3] },
+      { class: '2B', grade: '2', timeline: [0, 1, 2, 2, 2, 3, 4, 4, 4, 4] },
+      { class: '2C', grade: '2', timeline: [0, 0, 0, 0, 1, 2, 3, 3, 4, 4] },
+      { class: '2D', grade: '2', timeline: [1, 1, 1, 2, 2, 3, 4, 5, 5, 5] },
+
+      { class: '3A', grade: '3', timeline: [1, 1, 2, 3, 4, 5, 6, 7, 7, 7] },
+      { class: '3B', grade: '3', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] },
+      { class: '3C', grade: '3', timeline: [0, 1, 1, 1, 1, 2, 2, 2, 2, 2] },
+      { class: '3D', grade: '3', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] },
+
+      { class: '4A', grade: '4', timeline: [1, 2, 2, 2, 3, 4, 4, 4, 4, 4] },
+      { class: '4B', grade: '4', timeline: [0, 0, 1, 2, 2, 3, 3, 3, 3, 3] },
+      { class: '4C', grade: '4', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] },
+      { class: '4D', grade: '4', timeline: [0, 0, 0, 0, 1, 2, 3, 4, 5, 6] },
+
+      { class: '5A', grade: '5', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 2] },
+      { class: '5B', grade: '5', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] },
+      { class: '5C', grade: '5', timeline: [0, 0, 0, 0, 0, 1, 2, 2, 2, 2] },
+      { class: '5D', grade: '5', timeline: [1, 2, 3, 3, 4, 5, 6, 7, 8, 8] },
+
+      { class: '6A', grade: '6', timeline: [0, 1, 2, 2, 3, 4, 4, 5, 5, 5] },
+      { class: '6B', grade: '6', timeline: [0, 0, 0, 0, 0, 1, 1, 1, 1, 1] },
+      { class: '6C', grade: '6', timeline: [0, 1, 1, 1, 1, 2, 2, 2, 2, 2] },
+      { class: '6D', grade: '6', timeline: [0, 0, 0, 1, 1, 2, 3, 3, 4, 4] }
+    ];
+
+    const champions = [
+      { grade: '一年級', class: '1A', score: 4 },
+      { grade: '二年級', class: '2D', score: 5 },
+      { grade: '三年級', class: '3A', score: 7 },
+      { grade: '四年級', class: '4D', score: 6 },
+      { grade: '五年級', class: '5D', score: 8 },
+      { grade: '六年級', class: '6A', score: 5 }
+    ];
+
+    let currentStep = 0;
+    let isPlaying = false;
+    let timer = null;
+    let selectedGrade = 'ALL';
+
+    const container = document.getElementById('chartContainer');
+    const currentDateDisplay = document.getElementById('currentDateDisplay');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const playText = document.getElementById('playText');
+    const replayBtn = document.getElementById('replayBtn');
+    const championsOverlay = document.getElementById('championsOverlay');
+    const championsGrid = document.getElementById('championsGrid');
+
+    // Create DOM Elements for Bars
+    function initBars() {
+      // Clear existing elements except overlay
+      const existing = container.querySelectorAll('.bar-row');
+      existing.forEach(e => e.remove());
+
+      rawData.forEach((item) => {
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.dataset.class = item.class;
+        row.dataset.grade = item.grade;
+
+        row.innerHTML = `
+          <div class="class-label">
+            <span class="rank-num">--</span>
+            <span>${item.class}</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill"></div>
+            <div class="score-value">0 次</div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      renderChampionsGrid();
+      updateFrame(0);
+    }
+
+    function renderChampionsGrid() {
+      championsGrid.innerHTML = '';
+      champions.forEach((c, idx) => {
+        const card = document.createElement('div');
+        card.className = 'champ-card';
+        card.style.transitionDelay = `${idx * 0.15 + 0.2}s`;
+        card.innerHTML = `
+          <div class="champ-grade">${c.grade} 總冠軍</div>
+          <div class="champ-class">${c.class}</div>
+          <div class="champ-score-box">
+            <span class="champ-score-num">${c.score}</span>
+            <span class="champ-score-unit">次獲獎</span>
+          </div>
+        `;
+        championsGrid.appendChild(card);
+      });
+    }
+
+    function updateFrame(stepIndex) {
+      currentDateDisplay.textContent = dates[stepIndex];
+
+      // Filter classes based on grade selection
+      let visibleData = rawData;
+      if (selectedGrade !== 'ALL') {
+        visibleData = rawData.filter(d => d.grade === selectedGrade);
+      }
+
+      // Calculate current scores and sort
+      const currentScores = visibleData.map(d => ({
+        class: d.class,
+        grade: d.grade,
+        score: d.timeline[stepIndex]
+      })).sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return a.class.localeCompare(b.class);
+      });
+
+      const maxScore = 8; // Max overall score
+      const rowHeight = selectedGrade === 'ALL' ? 44 : 70;
+      const topOffset = 20;
+
+      const allRows = container.querySelectorAll('.bar-row');
+
+      allRows.forEach(row => {
+        const cName = row.dataset.class;
+        const rankIndex = currentScores.findIndex(s => s.class === cName);
+
+        if (rankIndex !== -1) {
+          row.style.opacity = '1';
+          row.style.transform = `translateY(${rankIndex * rowHeight + topOffset}px)`;
+          
+          const score = currentScores[rankIndex].score;
+          const barFill = row.querySelector('.bar-fill');
+          const scoreVal = row.querySelector('.score-value');
+          const rankNum = row.querySelector('.rank-num');
+
+          const percentage = (score / maxScore) * 80; // keep within chart space
+          barFill.style.width = `${Math.max(percentage, 1)}%`;
+          scoreVal.textContent = `${score} 次`;
+          rankNum.textContent = rankIndex + 1;
+
+          // Rank styling
+          barFill.classList.remove('rank-1', 'rank-2', 'rank-3');
+          if (rankIndex === 0) barFill.classList.add('rank-1');
+          else if (rankIndex === 1) barFill.classList.add('rank-2');
+          else if (rankIndex === 2) barFill.classList.add('rank-3');
+
+        } else {
+          row.style.opacity = '0';
+          row.style.transform = `translateY(600px)`;
+        }
+      });
+    }
+
+    function play() {
+      if (isPlaying) return;
+      
+      if (currentStep >= dates.length - 1) {
+        currentStep = 0;
+        championsOverlay.classList.remove('show');
+      }
+
+      isPlaying = true;
+      playIcon.textContent = '❚❚';
+      playText.textContent = '暫停';
+
+      timer = setInterval(() => {
+        currentStep++;
+        if (currentStep < dates.length) {
+          updateFrame(currentStep);
+        } else {
+          pause();
+          currentStep = dates.length - 1;
+          // Show champions reveal at the end
+          setTimeout(() => {
+            championsOverlay.classList.add('show');
+          }, 800);
+        }
+      }, 1200); // 1.2s per week -> ~12 seconds total animation
+    }
+
+    function pause() {
+      isPlaying = false;
+      playIcon.textContent = '▶';
+      playText.textContent = '繼續';
+      if (timer) clearInterval(timer);
+    }
+
+    function replay() {
+      pause();
+      currentStep = 0;
+      championsOverlay.classList.remove('show');
+      updateFrame(0);
+      setTimeout(play, 300);
+    }
+
+    // Event Listeners
+    playBtn.addEventListener('click', () => {
+      if (isPlaying) pause();
+      else play();
+    });
+
+    replayBtn.addEventListener('click', replay);
+
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        selectedGrade = e.target.dataset.grade;
+        updateFrame(currentStep);
+      });
+    });
+
+    // Initialize on load
+    initBars();
+  </script>
+</body>
+</html>
